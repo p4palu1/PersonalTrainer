@@ -1,4 +1,5 @@
 import express from 'express'
+import path from 'path'
 import dotenv from "dotenv"
 import connectDB from "./config/db.js"
 import workoutRoutes from "./routes/workoutRoutes.js"
@@ -16,12 +17,19 @@ const app = express()
 
 app.use(express.json())
 
-app.get('/', (req, res) => {
-    res.send('API is ONNNNN')
-})
-
 app.use('/api/workouts', workoutRoutes)
 app.use('/api/admins', adminRoutes)
+
+const __dirname = path.resolve()
+if(process.env.NODE_ENV === "production") {
+    app.use(express.static(path.join(__dirname, '/frontend/build')))
+
+    app.get("*", (req, res) => res.sendFile(path.resolve(__dirname, "Frontend","build", "index.html")))
+} else {
+    app.get('/', (req, res) => {
+    res.send('API is ONNNNN')
+  })
+}
 
 
 app.use(notFound)
